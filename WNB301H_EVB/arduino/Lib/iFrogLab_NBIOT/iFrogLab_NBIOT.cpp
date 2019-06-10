@@ -209,7 +209,27 @@ String iFrogLab_NBIOT::CheckIP()
   return dataStr;
 
 } 
-
+String iFrogLab_NBIOT::StringToHexString(String str){
+    // Define 
+  //String str = "This is my string"; 
+  // Length (with one extra character for the null terminator)
+  int str_len = str.length() + 1; 
+  String strHex="";
+  for(int i=0;i<str_len;i++){
+    // Prepare the character array (the buffer) 
+    char char_array[str_len];
+    // Copy it over 
+    str.toCharArray(char_array, str_len);
+    char t2;
+    t2=str[i];
+    int t3=(int)t2;
+    String stringOne=String(t3, HEX);  
+    strHex=strHex+stringOne;
+  }
+  
+  if(m_Debug==1)  Serial.println(strHex);
+  return strHex;
+}
 
 String iFrogLab_NBIOT::SendString(String ipaddress1,int i_port,String str1,String Telcom)
 {
@@ -265,8 +285,10 @@ String iFrogLab_NBIOT::SendString(String ipaddress1,int i_port,String str1,Strin
 
   String key2="1,6";
   String key3="1,29";
+  String str1Hex=StringToHexString(str1);
+  int str1Len=str1.length();
   //mySerial->println("AT+NSOST=1,54.180.152.89,20001,8,6966726f676c6162");
-  String t1="AT+NSOST="+key1+","+ipaddress1+","+port+",8,6966726f676c6162";
+  String t1="AT+NSOST="+key1+","+ipaddress1+","+port+","+String(str1Len)+","+str1Hex;
          //t1="AT+NSOST=1,54.180.152.89,20001,8,6966726f676c6162";
   Serial.println(t1);
   mySerial->print(t1);

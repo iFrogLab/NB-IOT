@@ -45,7 +45,23 @@ String HexStrToStr(String WorkingString){
   }
 }
 
-
+String StringToHexString(String str){
+  int str_len = str.length() + 1; 
+  String strHex="";
+  for(int i=0;i<str_len;i++){
+    // Prepare the character array (the buffer) 
+    char char_array[str_len];
+    // Copy it over 
+    str.toCharArray(char_array, str_len);
+    char t2;
+    t2=str[i];
+    int t3=(int)t2;
+    String stringOne=String(t3, HEX);  
+    strHex=strHex+stringOne;
+  }
+  Serial.println(strHex);
+  return strHex;
+}
 
 void setup() {
 
@@ -56,46 +72,9 @@ void setup() {
 
   Serial.println("Goodnight moon!");
  
-/*
-String WorkingString = "48";
-long A = strtol(WorkingString.c_str(),NULL,16);
-WorkingString= String(A);
-
-Serial.println(WorkingString);
-Serial.println(char(int(A)));
-*/
-
 
    
-/*
-
-String tSting1="486921";
-byte byteArr[] = {0x41, 0x42, 0x43};
-char charArr[3];
-for (int c=0;c<=2;c++)
-{
-    temp[0]=tSting1[(c*2)];
-    temp[1]=tSting1[(c*2)+1];
-    temp[2]='\0';
- byte t1=atoi(temp);
- charArr[c] = char(t1);
- Serial.print(char(charArr[c]));
-}
-Serial.println();
-
-
-  Serial.println(HexToString("486921"));
-
-*/
-
-
-
-
-  
-
-  
-  
-    // set the data rate for the SoftwareSerial port
+  // set the data rate for the SoftwareSerial port
   mySerial.begin(9600);
   while (!mySerial) {}
  
@@ -143,7 +122,10 @@ Serial.println();
     Serial.write(mySerial.read());
   }
   delay(1000);
-  mySerial.print("AT+NSOST=1,54.180.152.89,20001,8,6966726f676c6162");
+  String t1="www.ifroglab.com";
+
+  //mySerial.print("AT+NSOST=1,54.180.152.89,20001,8,6966726f676c6162");
+  mySerial.print("AT+NSOST=1,54.180.152.89,20001,"+String(t1.length())+","+StringToHexString(t1));
   mySerial.print("\r");
   delay(100);
   while (mySerial.available()) {
@@ -204,11 +186,8 @@ Serial.println();
   Serial.println(StringHex);
   String StringNextLen=Str1.substring(index5+1,Str1Len);
   Serial.println(StringNextLen);
-  
   Serial.println("====================");
   Serial.print(HexStrToStr(StringHex));
-
- 
 }
 
 void loop() { // run over and over
