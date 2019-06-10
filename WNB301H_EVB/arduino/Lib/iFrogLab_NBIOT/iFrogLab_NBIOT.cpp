@@ -20,7 +20,7 @@
 iFrogLab_NBIOT::iFrogLab_NBIOT(int RX, int TX)
 {
 
-  m_Debug=0;
+  m_Debug=1;
   m_RX=RX;
   m_TX=TX;
   m_port=0;
@@ -54,7 +54,21 @@ OK
 
 ------------------
 */
-
+String iFrogLab_NBIOT::SendCmd(String cmd)
+{
+//#String cmd="AT+NBAND?";
+  String dataStr="";
+  mySerial->print(cmd);
+  mySerial->print("\r");
+  delay(10);
+  if (mySerial->available()) {
+    dataStr=dataStr+mySerial->readString();// read the incoming data as string
+    dataStr=dataStr+mySerial->readString();// read the incoming data as string
+    dataStr=dataStr+mySerial->readString();// read the incoming data as string
+    if(m_Debug==1) Serial.println(dataStr);
+  }
+  return dataStr;
+} 
 String iFrogLab_NBIOT::CheckTheBands(void)
 {
   String cmd="AT+NBAND?";
@@ -63,7 +77,11 @@ String iFrogLab_NBIOT::CheckTheBands(void)
   delay(10);
   if (mySerial->available()) {
     dataStr=mySerial->readString();// read the incoming data as string
-    //if(m_Debug==1) Serial.println(dataStr);
+    if(m_Debug==1) Serial.println(dataStr);
+  }
+  // close sockets
+  for(int i=0;i<3;i++){
+    CloseSocket(i);
   }
   return dataStr;
 
@@ -77,7 +95,7 @@ String iFrogLab_NBIOT::SetCheckTheBands(String i_value)
   delay(10);
   if (mySerial->available()) {
     dataStr=mySerial->readString();// read the incoming data as string
-    //if(m_Debug==1) Serial.println(dataStr);
+    if(m_Debug==1) Serial.println(dataStr);
   }
   return dataStr;
 
@@ -120,6 +138,7 @@ int *iFrogLab_NBIOT::CheckSIM_IMSI(void)
       //Serial.print(b);
       //Serial.print(") ");
       val[b] = mySerial->read();
+      if(m_Debug==1) Serial.println(val[b]);
       //Serial.print("val = ");
       //Serial.println(val, HEX);
     }
@@ -152,6 +171,7 @@ int *iFrogLab_NBIOT::CheckSIM_NCCID(void)
       //Serial.print(b);
       //Serial.print(") ");
       val[b] = mySerial->read();
+      if(m_Debug==1) Serial.println(val[b]);
       //Serial.print("val = ");
       //Serial.println(val2, HEX);
     }
@@ -164,7 +184,8 @@ String iFrogLab_NBIOT::CheckSignal()
 
   String cmd="AT+CSQ";
   String dataStr="";
-  mySerial->println(cmd);
+  mySerial->print(cmd);
+  mySerial->print("\r");
   delay(10);
   if (mySerial->available()) {
     dataStr=mySerial->readString();// read the incoming data as string
@@ -178,7 +199,8 @@ String iFrogLab_NBIOT::CheckIP()
 
   String cmd="AT+CGPADDR";
   String dataStr="";
-  mySerial->println(cmd);
+  mySerial->print(cmd);
+  mySerial->print("\r");
   delay(10);
   if (mySerial->available()) {
     dataStr=mySerial->readString();// read the incoming data as string
@@ -227,7 +249,9 @@ String iFrogLab_NBIOT::SendString(String ipaddress1,int i_port,String str1,Strin
   delay(10);
   if (mySerial->available()) {
     dataStr=mySerial->readString();
+    if(m_Debug==1) Serial.println("Send==> AT+NSOCR=DGRAM,17,"+port+",1,\"AF_INET\"");
     if(m_Debug==1) Serial.println(dataStr);
+    if(dataStr.length()<=1) return "error 001: AT+NSOCR does not return socked number ";
     key1=dataStr.substring(2,3);
     Serial.println("--------");
     Serial.println(key1);
@@ -235,96 +259,60 @@ String iFrogLab_NBIOT::SendString(String ipaddress1,int i_port,String str1,Strin
   }
   alldataStr=alldataStr+dataStr;
 
+
+
+
+
   String key2="1,6";
   String key3="1,29";
-  //mySerial->println("AT+NSOST=1,119.29.206.29,"+port+",6,4C4954454F4E");
-  String t1="AT+NSOST="+key1+","+ipaddress1+","+port+",6,4C4954454F4E";
+  //mySerial->println("AT+NSOST=1,54.180.152.89,20001,8,6966726f676c6162");
+  String t1="AT+NSOST="+key1+","+ipaddress1+","+port+",8,6966726f676c6162";
+         //t1="AT+NSOST=1,54.180.152.89,20001,8,6966726f676c6162";
   Serial.println(t1);
-  mySerial->println(t1);
-  delay(1000);
+  mySerial->print(t1);
+  mySerial->print("\r");
+  delay(2000);
   if (mySerial->available()) {
     dataStr=mySerial->readString();
     if(m_Debug==1) Serial.println(dataStr);
+    if(dataStr.length()<=1) return "error";
     key2=dataStr.substring(2,5);
     key3=dataStr.substring(23,28);
-    Serial.println("--------");
+    Serial.println("----dataStr----");
     Serial.println(dataStr);
-    Serial.println("--------");
+    Serial.println("----key2----");
     Serial.println(key2);
-    Serial.println("--------");
+    Serial.println("----key3----");
     Serial.println(key3);
     Serial.println("--------");
   }
   alldataStr=alldataStr+dataStr;
 
 
-  //delay(2000);
-
-  delay(1000);
-  t1="AT+NSORF="+key1+",1024";
+  t1="AT+NSORF="+key2;
+  t1="AT+NSORF=1,1024";
   Serial.println(t1);
-  mySerial->println(t1);
-  delay(300);
-  //mySerial->println("AT+NSORF="+key3);
-  //mySerial->println("AT+NSORF=1,6");
-  if (mySerial->available()) {
-    //delay(3000);
-      dataStr=mySerial->readString();
-      /*
-      int t2=mySerial->available();
-      for(int j=0;j<t2;j++){
-        if(mySerial->available()) {
-          Serial.write(mySerial->read());
-        }else{
-          break;
-        }
-      }*/
-    // if(m_Debug==1) 
-    Serial.println("--------");
-    Serial.println(dataStr);
-    Serial.println("--------");
-  }
-  alldataStr=alldataStr+dataStr;
+  mySerial->print(t1);
+  mySerial->print("\r");
 
-  //############
-/*
-  for(int i=0;i<5;i++){
-    t1="AT+NSORF="+key2;
-    Serial.println(t1);
-    mySerial->println(t1);
-    //mySerial->println("AT+NSORF="+key3);
-    //mySerial->println("AT+NSORF=1,6");
-    //delay(2000);
+
+  delay(3000);
+  String datareturn="No data";
+  for(int i=0;i<3000;i++){
     if (mySerial->available()) {
-      //delay(1000);
-      int t2=mySerial->available();
-      for(int j=0;j<t2;j++){
-        if(mySerial->available()) {
-          Serial.write(mySerial->read());
-        }else{
-          break;
-        }
-      }
-
-      dataStr=mySerial->readString();
+      //delay(3000);
+        datareturn=mySerial->readString();
       // if(m_Debug==1) 
+      Serial.println("----NSORF----");
+      Serial.println(datareturn);
       Serial.println("--------");
-      Serial.println(dataStr);
-      Serial.println("--------");
+      break;
     }
-    alldataStr=alldataStr+dataStr;
+    delay(1);
   }
-
-*/
-
-
-  for(int i=0;i<5;i++){
-    CloseSocket(i);
-  }
-  
-  return alldataStr;
-  //return dataStr;
-
+  alldataStr=dataStr;alldataStr+dataStr;
+  CloseSocket(key1.toInt());
+  return datareturn;
 } 
 
 
@@ -332,7 +320,8 @@ String iFrogLab_NBIOT::CloseSocket(int portNumer)
 {
   String dataStr="";
   //Close socket,  關閉socket
-  mySerial->println("AT+NSOCL="+String(portNumer, DEC));
+  mySerial->print("AT+NSOCL="+String(portNumer, DEC));
+  mySerial->print("\r");
   delay(10);
   if (mySerial->available()) {
     dataStr=mySerial->readString();

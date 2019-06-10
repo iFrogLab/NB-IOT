@@ -1,14 +1,9 @@
 
 /*
- * iFrogLab IL-LORA1272 
- * Function功能,     ARDUINO , IFROGLAB LORA IL-LORA1272
- * GND接地,          GND     ,Pin 1, 
- * Host_IRQ接收反應, Pin 9   ,Pin 2, 
- * VDD電源,          3.3V    ,Pin 3, 
- * UART TX,         Pin 10  ,Pin 7 
- * UART RX,         Pin 11  ,Pin 8 
- * 
- * tutorial: please see http://www.ifroglab.com/?p=7641
+  iFrogLab_NBIOT.h - Test library for ifroglab NB-IOT - implementation
+  Copyright (c) 2019 Powen Ko, iFroglab.com All right reserved.
+
+  
  */
 #include <iFrogLab_NBIOT.h>
 
@@ -81,23 +76,17 @@ void setup()  {
   String str1="hello";
   String str2=NBIOT.SendString(IPAddress1,20001,str1,"EasTone");  //EasTone(遠傳)
   //String str2=NBIOT.SendString(IPAddress1,str1,"Taiwan Mobile");  //Taiwan Mobile(台灣大哥大)
-  Serial.println("SendString");
-  Serial.println(str2);
-  Serial.println("------------------");
-
-  
-
-  delay(5000);
-  
+  //Serial.println("SendString");
+  //Serial.println(str2);
+  //Serial.println("================");
+  /*
+  //str2=NBIOT.SendCmd("AT+NSORF=1,1024");
+  //Serial.println(str2);
+  Serial.println("================");
+  Serial.println("========start loop========");
+  */
 }
 
-String dataStr="";
 void loop() { // run over and over
-  if (NBIOT.mySerial->available()) {
-    Serial.write(NBIOT.mySerial->read());
-  }
-  if (Serial.available()) {
-    NBIOT.mySerial->write(Serial.read());
-  }
-
+  
 }

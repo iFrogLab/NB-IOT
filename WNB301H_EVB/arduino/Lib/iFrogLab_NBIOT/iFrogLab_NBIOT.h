@@ -29,6 +29,7 @@ class iFrogLab_NBIOT
     //String SendHexArray(int* t1,int len);              // CheckSignal
 
     String CloseSocket(int portNumer);
+    String SendCmd(String cmd);
 
     SoftwareSerial *mySerial;
     
